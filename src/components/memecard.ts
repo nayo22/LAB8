@@ -1,12 +1,13 @@
 class MemeCard extends HTMLElement {
   static get observedAttributes() {
-    return ['src', 'name', 'created']
+    return ['src', 'name', 'created', 'type']
   }
 
   private shadow: ShadowRoot
   private src = ''
   private name = ''
   private created = ''
+  private type: 'image' | 'video' = 'image'
 
   constructor() {
     super()
@@ -18,6 +19,7 @@ class MemeCard extends HTMLElement {
       if (attrName === 'src') this.src = newVal
       if (attrName === 'name') this.name = newVal
       if (attrName === 'created') this.created = newVal
+      if (attrName === 'type') this.type = newVal as 'image' | 'video'
       this.render()
     }
   }
@@ -43,10 +45,16 @@ class MemeCard extends HTMLElement {
           transform: scale(1.05);
           box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        img {
+        img, video {
           width: 100%;
           height: auto;
           display: block;
+        }
+        video {
+          autoplay: true;
+          muted: true;
+          loop: true;
+          playsinline: true;
         }
         .info {
           padding: 0.5rem 1rem;
@@ -60,7 +68,9 @@ class MemeCard extends HTMLElement {
         }
       </style>
       <div class="card">
-        <img src="${this.src}" alt="meme" />
+        ${this.type === 'video'
+          ? `<video src="${this.src}" autoplay muted loop playsinline></video>`
+          : `<img src="${this.src}" alt="meme" />`}
         <div class="info">
           <div class="name">${this.name}</div>
           <div class="date">${this.formatDate(this.created)}</div>

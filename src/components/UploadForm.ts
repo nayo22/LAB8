@@ -61,10 +61,7 @@ class UploadForm extends HTMLElement {
           .upload(filePath, file, {
             cacheControl: '3600',
             upsert: false,
-            // supabase-js v2.x.x upload method does not have onUploadProgress directly in options.
-            // For progress, you would typically use XHR events if constructing the request manually,
-            // or check if a newer version of the client offers a more direct way.
-            // For now, we'll keep the progress bar but not update it dynamically from supabase.upload directly.
+
           })
 
         loader.style.display = 'none'
@@ -74,11 +71,11 @@ class UploadForm extends HTMLElement {
           alert('Error al subir: ' + error.message)
         } else {
           alert('Tu meme está posteado k pro 😎')
-          // Incluimos el filePath en el detalle del evento
+
           const eventDetail = { detail: { filePath: filePath } };
           document.dispatchEvent(new CustomEvent('memeUploaded', eventDetail));
 
-          input.value = '' // Reset file input
+          input.value = '' 
           if (this.currentObjectURL) {
             URL.revokeObjectURL(this.currentObjectURL);
             this.currentObjectURL = null;
