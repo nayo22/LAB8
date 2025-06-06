@@ -75,7 +75,7 @@ class UploadForm extends HTMLElement {
           const eventDetail = { detail: { filePath: filePath } };
           document.dispatchEvent(new CustomEvent('memeUploaded', eventDetail));
 
-          input.value = '' 
+          input.value = ''
           if (this.currentObjectURL) {
             URL.revokeObjectURL(this.currentObjectURL);
             this.currentObjectURL = null;
@@ -97,39 +97,77 @@ class UploadForm extends HTMLElement {
 
   render() {
     this.shadowRoot!.innerHTML = `
-      <style>
-        form {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          background: #fff;
-          padding: 1rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        img, video {
-          max-width: 300px;
-          display: none;
-        }
-        video {
-          autoplay: true;
-          muted: true;
-          loop: true;
-        }
-        .loader {
-          display: none;
-          width: 32px;
-          height: 32px;
-          border: 4px solid #ccc;
-          border-top-color: #333;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-          align-self: center;
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      </style>
+   <style>
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #fff;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        max-width: 100%;
+      }
+
+      input[type="file"] {
+        font-family: inherit;
+        border: 1px solid #ccc;
+        padding: 0.4rem;
+        border-radius: 8px;
+        background-color: #f8f8f8;
+        cursor: pointer;
+      }
+
+      button[type="submit"] {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(to right, #0066ff, #0051d4);
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s ease, background 0.3s ease;
+      }
+
+      button[type="submit"]:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(to right, #0051d4, #0041aa);
+      }
+
+      progress {
+        width: 100%;
+        height: 8px;
+        border: none;
+        border-radius: 4px;
+        overflow: hidden;
+        background-color: #ddd;
+        margin: 0; /* Elimina el espacio extra */
+        padding: 0; /* Asegura que no tenga espacio interno */
+        appearance: none;
+      }
+      progress::-webkit-progress-bar {
+        background-color: #eee;
+      }
+      progress::-webkit-progress-value {
+        background-color: #007aff;
+      }
+
+      .loader {
+        display: none;
+        width: 32px;
+        height: 32px;
+        border: 4px solid #ccc;
+        border-top-color: #333;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        align-self: center;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+
       <form>
         <input type="file" accept="image/*,video/*" required />
         <img />

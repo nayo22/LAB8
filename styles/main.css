@@ -1,5 +1,47 @@
 body {
-  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.hero {
+  background: linear-gradient(120deg, #202020, #121212);
+  padding: 10rem 1rem;
+  text-align: center;
+  background-image: url('https://i.pinimg.com/736x/d7/cd/09/d7cd09f9a353c0ca7df317ef6fdc6db7.jpg');
+  background-size: cover;
+  background-position: center;
+  color: rgb(184, 212, 248);
+  position: relative;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+.hero h1 {
+  position: relative;
+  z-index: 1;
+  font-size: 3rem;
+  margin: 0;
+}
+
+
+.upload-wrapper {
+  max-width: 640px;
+  margin: -3rem auto 3rem;
+  background: rgb(12, 38, 83);
   padding: 2rem;
-  background: #fafafa;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(16, 49, 106, 0.353);
+  z-index: 2;
+  position: relative;
+}
+
+upload-form {
+  display: block;
+  width: 100%;
 }

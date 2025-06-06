@@ -46,57 +46,42 @@ class MemeGallery extends HTMLElement {
 
 				const defaultMemes = [
 					{
-						name: 'Kanye West❌❌Bonfiest✅✅',
 						publicUrl: 'https://media.tenor.com/BdOHYc9fC9EAAAAM/watermelon.gif',
-						type: 'gif',
-					},
-					{
-						name: '🏳️‍🌈🤨?',
-						publicUrl:
-							'https://i.imgflip.com/4go23d.jpg',
 						type: 'image',
 					},
 					{
-						name: 'Tumbalacasamami',
+						publicUrl: 'https://i.imgflip.com/4go23d.jpg',
+						type: 'image',
+					},
+					{
 						publicUrl: 'https://c.tenor.com/vcXlB9xoqlIAAAAC/bob-esponja.gif',
 						type: 'image',
 					},
 					{
-						name: 'LA LAAA LA LAAA',
 						publicUrl: 'https://i.imgflip.com/6cv3ry.gif',
-						type: 'gif',
-					},
-					{
-						name: 'EBRIDEI IM CHOFULIN',
-						publicUrl: 'https://media.tenor.com/-wHg_mAF4sAAAAAM/everyday-im-suffering-everyday.gif',
-						type: 'gif',
-					},
-					{
-						name: 'AjioAjioAjioa',
-						publicUrl: 'https://media.tenor.com/ebwCzZDWXRcAAAAM/clapping-creepy-cat-pixelated.gif',
-						type: 'gif',
-					},
-					{
-						name: 'SUSpirando',
-						publicUrl: 'https://media.tenor.com/VDgMW2S9i1gAAAAM/feliz-navidad-tiktok-meme.gif',
-						type: 'gif',
-					},
-					{
-						name: '#lolxxdxdpro',
-						publicUrl:
-							'https://pt.quizur.com/_image?href=https://img.quizur.com/f/img647b876865e8e0.68667366.jpg?lastEdited=1685817218&w=600&h=600&f=webp',
-						type: 'gif',
-					},
-
-					{
-						name: 'D:',
-						publicUrl:
-							'https://us-tuna-sounds-images.voicemod.net/fa1ec33b-ded7-4a26-b665-0ca5570d5f93-1704515361457.jpg',
 						type: 'image',
 					},
-
 					{
-						name: 'Mariposita no te tocaba D:',
+						publicUrl: 'https://media.tenor.com/-wHg_mAF4sAAAAAM/everyday-im-suffering-everyday.gif',
+						type: 'image',
+					},
+					{
+						publicUrl: 'https://media.tenor.com/ebwCzZDWXRcAAAAM/clapping-creepy-cat-pixelated.gif',
+						type: 'image',
+					},
+					{
+						publicUrl: 'https://media.tenor.com/VDgMW2S9i1gAAAAM/feliz-navidad-tiktok-meme.gif',
+						type: 'image',
+					},
+					{
+						publicUrl: 'https://pt.quizur.com/_image?href=https://img.quizur.com/f/img647b876865e8e0.68667366.jpg?lastEdited=1685817218&w=600&h=600&f=webp',
+						type: 'image',
+					},
+					{
+						publicUrl: 'https://us-tuna-sounds-images.voicemod.net/fa1ec33b-ded7-4a26-b665-0ca5570d5f93-1704515361457.jpg',
+						type: 'image',
+					},
+					{
 						publicUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
 						type: 'video',
 					},
@@ -104,13 +89,8 @@ class MemeGallery extends HTMLElement {
 
 				for (const meme of defaultMemes) {
 					const card = document.createElement('meme-card');
-					const created = new Date().toISOString();
-
 					card.setAttribute('src', meme.publicUrl);
-					card.setAttribute('name', meme.name);
-					card.setAttribute('created', created);
 					card.setAttribute('type', meme.type);
-
 					grid.appendChild(card);
 				}
 
@@ -127,15 +107,10 @@ class MemeGallery extends HTMLElement {
 			if (!data?.publicUrl) continue;
 
 			const card = document.createElement('meme-card');
-			const timestamp = Number(file.name.split('-')[0]) || Date.now();
-			const created = new Date(timestamp).toISOString();
-
 			const ext = file.name.split('.').pop()?.toLowerCase();
 			const isVideo = ext === 'mp4' || ext === 'webm' || ext === 'mov';
 
 			card.setAttribute('src', data.publicUrl);
-			card.setAttribute('name', file.name);
-			card.setAttribute('created', created);
 			card.setAttribute('type', isVideo ? 'video' : 'image');
 
 			if (prepend) {
@@ -163,24 +138,46 @@ class MemeGallery extends HTMLElement {
 
 	render() {
 		this.innerHTML = `
-      <style>
-        h2 {
-          font-size: 1.5rem;
-          margin: 1rem 0;
-        }
-        .grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1rem;
-        }
-        .sentinel {
-          height: 1px;
-        }
-      </style>
+    <style>
+      :host {
+        display: block;
+        background-color: #121212;
+        color: #fff;
+        min-height: 100vh;
+      }
+
+      .container {
+        padding: 0 2rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        margin: 1rem 0;
+        color: #fff;
+      }
+
+      .grid {
+        columns: 250px;
+        column-gap: 1rem;
+      }
+
+      meme-card {
+        break-inside: avoid;
+        margin-bottom: 1rem;
+        display: block;
+      }
+
+      .sentinel {
+        height: 1px;
+      }
+    </style>
+
+    <div class="container">
       <h2>Meme Gallery mi compa:</h2>
       <div class="grid"></div>
       <div class="sentinel"></div>
-    `;
+    </div>
+  `;
 	}
 }
 
