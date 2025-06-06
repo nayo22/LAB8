@@ -1,90 +1,89 @@
 import { supabase } from '../services/supabaseClient'
 
 class MemeGallery extends HTMLElement {
-  private handleMemeUploadedRef: (e: Event) => void;
-
-  constructor() {
-    super()
-    this.handleMemeUploadedRef = (event: Event) =>
-      this.loadMemes(event as CustomEvent<{ filePath: string }>)
-  }
+  private offset = 0
+  private limit = 8
+  private observer!: IntersectionObserver
+  private sentinel!: HTMLElement
+  private loading = false
 
   connectedCallback() {
     this.render()
     this.loadMemes()
-    document.addEventListener('memeUploaded', this.handleMemeUploadedRef)
+    this.setupInfiniteScroll()
+
+    document.addEventListener('memeUploaded', (e: any) => {
+      const filePath = e.detail?.filePath
+      if (filePath) {
+        this.loadMemes(true, filePath)
+      }
+    })
   }
 
   disconnectedCallback() {
-    document.removeEventListener('memeUploaded', this.handleMemeUploadedRef)
+    this.observer?.disconnect()
   }
 
-  async loadMemes(event?: CustomEvent<{ filePath: string }>) {
+  private async loadMemes(prepend = false, newFilePath?: string) {
+    if (this.loading) return
+    this.loading = true
+
     const grid = this.querySelector('.grid')
     if (!grid) return
 
-    const newMeme = event?.detail?.filePath
-    grid.innerHTML = '<p>Cargando memes...</p>'
+    let files = []
+    if (prepend && newFilePath) {
+      files = [{ name: newFilePath }]
+    } else {
+      const { data, error } = await supabase.storage.from('memes').list('', {
+        limit: this.limit,
+        offset: this.offset,
+        sortBy: { column: 'created_at', order: 'desc' }
+      })
 
-    try {
-      const { data: filesList, error: listError } = await supabase
-        .storage
-        .from('memes')
-        .list('', {
-          sortBy: { column: 'created_at', order: 'desc' },
-          limit: 100,
-        })
-
-      if (listError) {
-        grid.innerHTML = `<p>Error cargando los memes: ${listError.message}</p>`
+      if (error || !data) {
+        console.error('Error listando:', error)
+        this.loading = false
         return
       }
 
-      let allFiles = filesList ?? []
-
-      if (newMeme && !allFiles.some(f => f.name === newMeme)) {
-        allFiles = [
-          {
-            name: newMeme,
-            id: '',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            last_accessed_at: new Date().toISOString(),
-            metadata: {},
-          } as any // 👈 solución segura y simple para bypass
-        ].concat(allFiles)
-      }
-
-      grid.innerHTML = ''
-
-      const cards = await Promise.all(
-        allFiles.map(async (file) => {
-          const urlData = supabase.storage.from('memes').getPublicUrl(file.name)
-
-          const publicUrl = urlData?.data?.publicUrl
-          if (!publicUrl) return null
-
-          const card = document.createElement('meme-card')
-          const timestamp = Number(file.name.split('-')[0]) || Date.now()
-          const created = file.created_at ? new Date(file.created_at) : new Date(timestamp)
-
-          card.setAttribute('src', publicUrl)
-          card.setAttribute('name', file.name)
-          card.setAttribute('created', created.toISOString())
-          return card
-        })
-      )
-
-      const valid = cards.filter(Boolean) as HTMLElement[]
-      if (valid.length > 0) {
-        valid.forEach(card => grid.appendChild(card))
-      } else {
-        grid.innerHTML = '<p>No se pudieron mostrar memes. 😢</p>'
-      }
-    } catch (e) {
-      console.error('💥 Error inesperado en loadMemes:', e)
-      grid.innerHTML = '<p>Error inesperado cargando memes 😵</p>'
+      files = data
+      this.offset += this.limit
     }
+
+    for (const file of files) {
+      const { data } = await supabase.storage.from('memes').getPublicUrl(file.name)
+      if (!data?.publicUrl) continue
+
+      const card = document.createElement('meme-card')
+      const timestamp = Number(file.name.split('-')[0]) || Date.now()
+      const created = new Date(timestamp).toISOString()
+
+      card.setAttribute('src', data.publicUrl)
+      card.setAttribute('name', file.name)
+      card.setAttribute('created', created)
+
+      if (prepend) {
+        grid.prepend(card)
+      } else {
+        grid.appendChild(card)
+      }
+    }
+
+    this.loading = false
+  }
+
+  private setupInfiniteScroll() {
+    this.sentinel = this.querySelector('.sentinel') as HTMLElement
+    if (!this.sentinel) return
+
+    this.observer = new IntersectionObserver(async (entries) => {
+      if (entries[0].isIntersecting && !this.loading) {
+        await this.loadMemes()
+      }
+    })
+
+    this.observer.observe(this.sentinel)
   }
 
   render() {
@@ -99,9 +98,13 @@ class MemeGallery extends HTMLElement {
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 1rem;
         }
+        .sentinel {
+          height: 1px;
+        }
       </style>
       <h2>Meme Gallery mi compa:</h2>
       <div class="grid"></div>
+      <div class="sentinel"></div>
     `
   }
 }
